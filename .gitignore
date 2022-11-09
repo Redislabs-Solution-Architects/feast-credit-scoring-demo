@@ -8,8 +8,12 @@ __pycache__/
 
 # environments
 .venv
+venv
 
 # feature store registry & settings
 feature_store_*
 creditscore/data/registry.db
 creditscore/data/online_store.db
+
+model.bin
+encoder.bin

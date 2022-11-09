@@ -40,7 +40,7 @@ class CreditScoringModel:
     model_filename = "model.bin"
     encoder_filename = "encoder.bin"
 
-    def __init__(self,secret=""):
+    def __init__(self, secret=""):
         # Load model
         if Path(self.model_filename).exists():
             self.classifier = joblib.load(self.model_filename)
@@ -56,7 +56,7 @@ class CreditScoringModel:
         # Set up feature store
         self.fs = feast.FeatureStore(repo_path="creditscore")
         if secret and (":" in secret):
-            self.fs.config.online_store.connection_string=secret
+            self.fs.config.online_store.connection_string = secret
 
     def train(self, loans):
         train_X, train_Y = self._get_training_features(loans)
@@ -75,7 +75,7 @@ class CreditScoringModel:
         train_X = training_df[
             training_df.columns.drop(self.target)
             .drop("event_timestamp")
-            .drop("created_timestamp")
+            .drop("created_timestamp__")
             .drop("loan_id")
             .drop("zipcode")
             .drop("dob_ssn")
@@ -110,7 +110,8 @@ class CreditScoringModel:
         features_df = features_df.reindex(sorted(features_df.columns), axis=1)
 
         # Drop unnecessary columns
-        features_df = features_df[features_df.columns.drop("zipcode").drop("dob_ssn")]
+        features_df = features_df[features_df.columns.drop(
+            "zipcode").drop("dob_ssn")]
 
         # Make prediction
         features_df["prediction"] = self.classifier.predict(features_df)

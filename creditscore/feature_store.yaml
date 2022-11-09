@@ -3,6 +3,11 @@ registry: data/registry.db
 provider: local
 online_store:
     type: redis
-    # for Azure:
-    # connection_string: <dns_name>.redis.cache.windows.net:6379,password=<pwd>
+    # connection string: <dns-name>:<port>,password=<password>
+    # example for Redis Cloud
+    # connection_string: redis-13125.c238.us-central1-2.gce.cloud.redislabs.com:<port,password=QMt...wNnB
+    # example for Azure
+    # connection_string: loanapp.redis.cache.windows.net:6379,password=Ze...A=
+    connection_string: localhost:6379
+entity_key_serialization_version: 2
     

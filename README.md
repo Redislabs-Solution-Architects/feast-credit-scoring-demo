@@ -43,28 +43,43 @@ Make note of this string as you will be using this later on.
 
 ### Using Redis Cloud
 
-_coming soon_
+Create the new Redis Cloud database using the [trial subscription](https://redis.com/try-free/).
+
+Check the database DNS name:
+
+```
+dig +short redis-13125.c238.us-central1-2.gce.cloud.redislabs.com
+```
+
+Log in with `redis-cli` command:
+```
+redis-13125.c238.us-central1-2.gce.cloud.redislabs.com
+```
 
 ### Using local Redis
 
-_coming soon_
+Run Redis Stack in a docker container:
+
+```
+docker run -d --name redis-stack -p 6379:6379 -p 8001:8001 redis/redis-stack:latest
+```
+
+See more details about using this docker container [here](https://hub.docker.com/r/redis/redis-stack)
 
 ## Local demo setup
 
 1. Create new virtual environment and activate it:
 
 ```
-python3 -m venv .venv/loanapp
+python3.8 -m venv venv
 
-source .venv/loanapp/bin/activate
+source venv/bin/activate
 ```
 
 2. Update `pip` and install project dependencies:
 
 ```
-pip install -update pip
-
-pip install wheel
+pip install -U pip wheel
 
 pip install -r requirements.txt
 ```
@@ -74,8 +89,12 @@ pip install -r requirements.txt
 ```
 online_store:
     type: redis
-    # for Azure:
-    connection_string: loanapp.redis.cache.windows.net:6379,password=Ze...A=
+    # connection string: <dns-name>:<port>,password=<password>
+    # example for Redis Cloud
+    # connection_string: redis-13125.c238.us-central1-2.gce.cloud.redislabs.com:<port,password=QMt...wNnB
+    # example for Azure
+    # connection_string: loanapp.redis.cache.windows.net:6379,password=Ze...A=
+    connection_string: localhost:6379
 ```
 
 4. Initialize feast repository:
@@ -83,13 +102,17 @@ online_store:
 ```
 cd creditscore
 feast apply
+
+OR
+
+feast -c creditscore apply
 ```
 
 5. Materialize features to Redis:
 
 ```
 CURRENT_TIME=$(date -u +"%Y-%m-%dT%H:%M:%S")
-feast materialize-incremental $CURRENT_TIME
+feast -c creditscore materialize-incremental $CURRENT_TIME
 ```
 
 6. Return to the main directory and train the model:
@@ -111,12 +134,12 @@ Warning: Using a password with '-a' or '-u' option on the command line interface
 
 You can run and test the model using either `run.py` (CLI) or `streamlit_app.py` (Browser). [Streamlit](https://streamlit.io/) is the framework that allows building web data apps in minutes.
 
-1. First, you need to configure the connection to Redis for your application by creating a file `.streamlit/secrets.toml` and adding the conection string to there:
+1. First, you need to configure the connection to Redis for your application by creating a file `.streamlit/secrets.toml` and adding the conection string to there (make sure to replace the connection string value based on the location of your Redis database):
 
 ```
 mkdir .streamlit
 
-echo "redis_connection_string = \"loanapp.redis.cache.windows.net:6379,password=Ze...UA=\"" > .streamlit/secrets.toml
+echo "redis_connection_string = \"localhost:6379"" > .streamlit/secrets.toml
 ```
 
 2. Next, run the application using the command below:
